@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#11171c" />
+    <title>Choplifter — Rescue Operations</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2311171c'/%3E%3Cpath d='M13 5h6v8h8v6h-8v8h-6v-8H5v-6h8z' fill='%23efaa72'/%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <main>
+      <header class="masthead">
+        <a class="wordmark" href="./" aria-label="Choplifter home"><span class="cross">✚</span> FIELD OPERATIONS <span class="edition">/ 1982</span></a>
+        <span class="edition-tag"><i></i> A CLASSIC, AIRBORNE AGAIN</span>
+      </header>
+      <section class="intro">
+        <div><p class="eyebrow">BUNGELING FRONTIER · RESCUE MISSION</p><h1>CHOPLIFTER<span>!</span></h1></div>
+        <p class="intro-copy">64 lives behind enemy lines.<br>One helicopter. <em>Bring them home.</em></p>
+      </section>
+      <section class="console" aria-label="Choplifter game">
+        <div class="instrument-bar">
+          <div class="mission-id"><span class="live-dot"></span><div>RESCUE OPERATIONS<small id="flight-status">AWAITING PILOT</small></div></div>
+          <div class="counter saved"><span>RESCUED</span><strong id="rescued">00<small> / 64</small></strong></div>
+          <div class="counter aboard"><span>ON BOARD</span><strong id="aboard">00<small> / 16</small></strong></div>
+          <div class="counter lost"><span>LOST</span><strong id="lost">00</strong></div>
+          <div class="utility"><button id="sound" class="icon-button" aria-label="Enable sound" title="Sound (M)">♪ <span>OFF</span></button><button id="pause" class="icon-button" aria-label="Pause game" title="Pause (P)">Ⅱ</button><button id="fullscreen" class="icon-button" aria-label="Fullscreen" title="Fullscreen">⛶</button></div>
+        </div>
+        <div class="viewport">
+          <div id="game" tabindex="0" role="application" aria-label="Rescue helicopter game. Arrow keys or WASD to fly. Space to fire. X to rotate. P to pause. Instructions below."></div>
+          <div id="overlay" class="overlay">
+            <div class="briefing">
+              <p class="eyebrow" id="overlay-kicker">PILOT BRIEFING / 001</p>
+              <h2 id="overlay-title">Leave no one<br>behind.</h2>
+              <p id="overlay-copy">Fly west. Free the hostages. Land nearby and wait for them to board. Get them back to the home pad alive.</p>
+              <button id="launch" class="launch">START MISSION <span>↗</span></button>
+              <p class="launch-hint" id="launch-hint">OR PRESS ENTER TO LIFT OFF</p>
+            </div>
+            <div class="briefing-stamp">3 HELICOPTERS<br>16 SEATS<br><span>64 REASONS TO RETURN</span></div>
+          </div>
+          <div id="radio" class="radio" role="status" aria-live="polite"></div>
+          <div id="touch-controls" aria-label="Touch flight controls"><div class="dpad"><button data-control="up" aria-label="Fly up">↑</button><button data-control="left" aria-label="Fly left">←</button><button data-control="down" aria-label="Fly down">↓</button><button data-control="right" aria-label="Fly right">→</button></div><div class="actions"><button data-control="turn" aria-label="Turn helicopter">TURN</button><button data-control="fire" aria-label="Fire weapon">FIRE</button></div></div>
+        </div>
+        <div class="telemetry"><span><i class="live-dot"></i> <b id="sector">HOME BASE</b></span><span id="facing">FACING ← WEST</span><span class="fleet">AIRCRAFT <b id="lives">◆ ◆ ◆</b></span><span id="timer">00:00</span></div>
+      </section>
+      <div class="controls"><span class="controls-label">FLIGHT CONTROLS</span><span><kbd>W A S D</kbd><span class="or">/</span><kbd>↑ ← ↓ →</kbd> Fly</span><span><kbd>SPACE</kbd> Fire</span><span><kbd>X</kbd> Rotate</span><span><kbd>P</kbd> Pause</span><button id="help" class="text-button">FIELD MANUAL <span>↗</span></button></div>
+      <section class="objectives" aria-label="Mission instructions">
+        <article><span class="step">01</span><div><h3>FREE THE HOSTAGES</h3><p>The nearest camp is open. Fire at the other barracks to release their occupants.</p></div></article>
+        <article><span class="step">02</span><div><h3>MAKE A CLEAN EXTRACTION</h3><p>Land beside them, never on them. Stay still as they board. Capacity: 16.</p></div></article>
+        <article><span class="step">03</span><div><h3>BRING THEM HOME</h3><p>Return east to the lit landing pad. Every person you save is your score.</p></div></article>
+      </section>
+      <footer><span>INSPIRED BY DAN GORLIN’S 1982 ORIGINAL</span><span>INDEPENDENT RECREATION <span class="footer-cross">✚</span> BUILT WITH PHASER</span></footer>
+    </main>
+    <dialog id="manual"><div class="manual-top"><p class="eyebrow">FIELD MANUAL / FLIGHT & RESCUE</p><button id="close-manual" class="icon-button" aria-label="Close manual">×</button></div><h2>People first. Always.</h2><p>Use <b>WASD or the arrow keys</b> to move. Release to slow into a hover. Descend vertically for a safe landing; touching down at speed can destroy your helicopter.</p><p><b>X cycles west → forward → east → forward.</b> Your facing is independent of your movement. Hold <b>Space</b> to shoot in the direction you face. In the forward position, Space fires down at tanks and barracks.</p><p>Land beside a waving group and stay still. Hostages board automatically, up to <b>16</b>. Land on the marked home pad to unload. Shooting, bombing or landing on hostages kills them. Passengers are lost if their helicopter is destroyed.</p><p>Tanks threaten low flight. Fighters arrive after your first delivery; homing mines join after your second. The border keeps tanks and fighters out, but mines can follow you home.</p><p>You have <b>three helicopters</b>. The mission ends when all 64 people are accounted for or the fleet is lost. <b>P / Escape</b> pauses, <b>M</b> toggles sound. The rescue record is saved on this device.</p><p class="manual-record" id="record">BEST RESCUE: 00 / 64</p></dialog>
+    <script type="module" src="/src/game.js"></script>
+  </body>
+</html>

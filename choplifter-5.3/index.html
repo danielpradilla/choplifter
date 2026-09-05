@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Choplifter 5.3</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      html, body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background: #05070e;
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #hud {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(7, 12, 22, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        color: #eef2ff;
+        z-index: 5;
+        max-width: min(94vw, 1024px);
+        pointer-events: none;
+      }
+      #game-wrap {
+        width: min(100vw, 1024px);
+        height: min(90vh, 700px);
+      }
+      canvas {
+        display: block;
+        border-radius: 8px;
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+      }
+      a {
+        color: #91c8ff;
+      }
+      #mobile-controls {
+        position: absolute;
+        inset: auto 0 16px 0;
+        margin: 0 auto;
+        width: min(100vw, 1024px);
+        max-width: 1024px;
+        height: 180px;
+        pointer-events: none;
+        display: none;
+      }
+      #mobile-controls.show {
+        display: block;
+      }
+      #mobile-controls .pad,
+      #mobile-controls .actions {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        position: absolute;
+        gap: 12px;
+        padding: 0 16px;
+      }
+      #mobile-controls .pad {
+        bottom: 86px;
+        left: 0;
+      }
+      #mobile-controls .actions {
+        bottom: 0;
+        left: 0;
+      }
+      .ctl {
+        pointer-events: auto;
+        width: 72px;
+        height: 62px;
+        border-radius: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.25);
+        background: rgba(16, 33, 66, 0.7);
+        color: #f1f6ff;
+        font-size: 24px;
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        touch-action: none;
+      }
+      .ctl:active {
+        background: rgba(98, 161, 255, 0.5);
+      }
+      .small {
+        width: 64px;
+        height: 52px;
+      }
+      #mobile-controls .group-left {
+        display: grid;
+        grid-template-columns: 72px 72px 72px;
+      }
+      #mobile-controls .group-middle {
+        display: grid;
+        grid-template-columns: 72px 72px;
+      }
+      #mobile-controls .group-right {
+        display: grid;
+        grid-template-columns: 72px 72px;
+      }
+      @media (pointer: coarse) {
+        #mobile-controls {
+          display: block;
+        }
+        #hud {
+          max-width: 93vw;
+          font-size: 12px;
+          line-height: 1.25;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="hud">
+      Controls: Arrows to move, Space shoot, Z rotate weapon (left / front / right), R restart when game ends.
+      Objective: Rescue 64 people from 4 barracks and drop them at the post office on the right.
+    </div>
+    <div id="game-wrap"></div>
+    <div id="mobile-controls">
+      <div class="pad">
+        <div class="group-left">
+          <button id="touch-left" class="ctl">◀</button>
+          <button id="touch-up" class="ctl">▲</button>
+          <button id="touch-right" class="ctl">▶</button>
+          <button id="touch-down" class="ctl">▼</button>
+        </div>
+        <div class="group-middle">
+          <button id="touch-rotate" class="ctl small">↻</button>
+          <button id="touch-shoot" class="ctl">␣</button>
+        </div>
+        <div class="group-right">
+            <button id="touch-restart" class="ctl small">R</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.86.0/dist/phaser.min.js"></script>
+    <script>
+      (() => {
+        const VIEW_WIDTH = 1024;
+        const VIEW_HEIGHT = 640;
+        const WORLD_WIDTH = 3600;
+        const WORLD_HEIGHT = 640;
+        const WORLD_BOUNDS_Y = WORLD_HEIGHT - 90;
+        const GROUND_TOP = WORLD_BOUNDS_Y - 2;
+
+        const TOTAL_HOSTAGES = 64;
+        const HOSTAGES_PER_BARRACK = 16;
+        const MAX_CARGO = 16;
+
+        class ChoplifterScene extends Phaser.Scene {
+          constructor() {
+            super({ key: 'play' });
+
+            this.lives = 3;
+            this.state = 'running';
+            this.passengerLoad = 0;
+            this.rescued = 0;
+            this.deliveredTrips = 0;
+            this.playerDead = false;
+          }
+
+          preload() {
+            this.createTextures();
+          }
+
+          createTextures() {
+            const g = this.make.graphics({ x: 0, y: 0, add: false });
+
+            g.fillStyle(0xe8f2ff, 1);
+            g.fillRoundedRect(0, 0, 56, 24, 6);
+            g.fillStyle(0x8fd3ff, 1);
+            g.fillRect(10, 6, 24, 10);
+            g.generateTexture('chopper', 56, 24);
+
+            g.clear();
+            g.fillStyle(0x8de17f, 1);
+            g.fillRect(0, 0, 8, 4);
+            g.generateTexture('player-shot', 8, 4);
+
+            g.clear();
+            g.fillStyle(0xffcc33, 1);
+            g.fillRect(0, 0, 4, 6);
+            g.generateTexture('enemy-shot', 4, 6);
+
+            g.clear();
+            g.fillStyle(0xff6f5a, 1);
+            g.fillRect(0, 0, 36, 16);
+            g.fillStyle(0x6a6a6a, 1);
+            g.fillRect(12, 4, 14, 8);
+            g.generateTexture('barrack', 36, 16);
+
+            g.clear();
+            g.fillStyle(0x8fa9ff, 1);
+            g.fillRect(0, 0, 120, 22);
+            g.generateTexture('pad', 120, 22);
+
+            g.clear();
+            g.fillStyle(0x65b0ff, 1);
+            g.fillRect(0, 0, 120, 32);
+            g.generateTexture('base', 120, 32);
+
+            g.clear();
+            g.fillStyle(0x404040, 1);
+            g.fillRect(0, 0, 40, 40);
+            g.generateTexture('tank', 40, 40);
+
+            g.clear();
+            g.fillStyle(0x9f2aff, 1);
+            g.fillRect(0, 0, 42, 24);
+            g.generateTexture('jet', 42, 24);
+
+            g.clear();
+            g.fillStyle(0x4bd3de, 1);
+            g.fillCircle(16, 16, 16);
+            g.generateTexture('mine', 32, 32);
+
+            g.clear();
+            g.fillStyle(0x2c5f3b, 1);
+            g.fillRect(0, 0, 1, 1);
+            g.generateTexture('dot', 1, 1);
+
+            g.destroy();
+          }
+
+          create() {
+            this.state = 'running';
+            this.playerDead = false;
+            this.touch = { left: false, right: false, up: false, down: false, shoot: false, rotate: false, restart: false };
+            this.audioContext = null;
+
+            this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+            this.physics.world.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+
+            this.add.image(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 'dot')
+              .setTint(0x081024)
+              .setScale(WORLD_WIDTH, WORLD_HEIGHT)
+              .setOrigin(0.5);
+            this.createTerrain();
+            this.createBarracks();
+            this.createBase();
+            this.createGroups();
+            this.createPlayer();
+            this.createMobileControls();
+            this.createHud();
+
+            this.createCollisions();
+            this.setTimers();
+          }
+
+          createTerrain() {
+            this.terrain = this.physics.add.staticGroup();
+
+            const ground = this.add.rectangle(WORLD_WIDTH / 2, GROUND_TOP + 45, WORLD_WIDTH, 90, 0x35512f);
+            this.physics.add.existing(ground, true);
+            ground.setData('killsOnLand', true);
+            this.terrain.add(ground);
+
+            const obstacleData = [
+              [580, 30, 210],
+              [940, 58, 150],
+              [1260, 40, 190],
+              [1560, 70, 170],
+              [1940, 35, 165],
+              [2280, 72, 185],
+              [2620, 50, 130],
+            ];
+
+            obstacleData.forEach(([x, h, w]) => {
+              const block = this.add.rectangle(x, GROUND_TOP - h + 20, w, h, 0x26452d);
+              this.physics.add.existing(block, true);
+              block.setData('killsOnLand', true);
+              this.terrain.add(block);
+            });
+          }
+
+          createBarracks() {
+            this.barracks = [];
+            const xs = [360, 640, 970, 1270];
+            xs.forEach((x, i) => {
+              const barrack = {
+                x,
+                topY: 420,
+                remaining: HOSTAGES_PER_BARRACK,
+                open: i === 0,
+                pad: null,
+                body: null,
+                text: null,
+              };
+
+              barrack.body = this.add.image(x, 430, 'barrack').setTint(i === 0 ? 0xffb86e : 0xa97a40);
+              this.physics.add.existing(barrack.body, true);
+              barrack.body.setData('kind', 'barrack');
+              barrack.body.setData('barrackIndex', i);
+
+              barrack.pad = this.physics.add.staticImage(x, 412, 'pad')
+                .setTint(i === 0 ? 0x5fd8ff : 0x7a7a7a);
+
+              barrack.text = this.add.text(x - 28, 392, `x${barrack.remaining}`, {
+                fontSize: '15px',
+                color: '#f7f7de',
+                fontFamily: 'monospace',
+              }).setOrigin(0.5);
+
+              this.barracks.push(barrack);
+            });
+          }
+
+          createBase() {
+            this.baseX = WORLD_WIDTH - 280;
+            this.basePad = this.physics.add.staticImage(this.baseX, 530, 'base').setTint(0x64cbff);
+            this.baseZone = this.physics.add.staticImage(this.baseX, 516, 'pad').setTint(0x1ad17f);
+          }
+
+          createGroups() {
+            this.playerShots = this.physics.add.group({ defaultKey: 'player-shot', maxSize: 64 });
+            this.enemyShots = this.physics.add.group({ defaultKey: 'enemy-shot', maxSize: 120 });
+
+            this.tanks = this.physics.add.group({ bounceX: 1, dragX: 120, maxSize: 12 });
+            this.jets = this.physics.add.group({ maxSize: 10 });
+            this.mines = this.physics.add.group({ maxSize: 8 });
+          }
+
+          createPlayer() {
+            this.player = this.physics.add.image(WORLD_WIDTH - 300, 420, 'chopper');
+            this.player.setDepth(10);
+            this.player.body.setSize(48, 14).setOffset(4, 5);
+            this.player.setCollideWorldBounds(true);
+            this.player.setDragX(260);
+            this.player.setMaxVelocity(300, 360);
+            this.player.setData('orientation', 'front');
+            this.player.body.setGravityY(450);
+
+            this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+
+            this.keys = this.input.keyboard.addKeys({
+              left: Phaser.Input.Keyboard.KeyCodes.LEFT,
+              right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+              up: Phaser.Input.Keyboard.KeyCodes.UP,
+              down: Phaser.Input.Keyboard.KeyCodes.DOWN,
+              shoot: Phaser.Input.Keyboard.KeyCodes.SPACE,
+              rotate: Phaser.Input.Keyboard.KeyCodes.Z,
+              restart: Phaser.Input.Keyboard.KeyCodes.R,
+            });
+
+            this.keys.rotate.on('down', () => this.rotateWeapon());
+
+            this.keys.restart.on('down', () => {
+              this.attemptRestart();
+            });
+
+            this.nextPlayerShot = 0;
+            this.lastBoardTime = 0;
+            this.lastHitSound = 0;
+          }
+
+          createMobileControls() {
+            if (!('ontouchstart' in window) && !navigator.maxTouchPoints) {
+              return;
+            }
+
+            const ids = {
+              left: 'touch-left',
+              right: 'touch-right',
+              up: 'touch-up',
+              down: 'touch-down',
+              shoot: 'touch-shoot',
+              rotate: 'touch-rotate',
+              restart: 'touch-restart',
+            };
+
+            Object.entries(ids).forEach(([key, id]) => {
+              const button = document.getElementById(id);
+              if (!button) return;
+              const set = (value) => {
+                this.touch[key] = value;
+              };
+              button.addEventListener('pointerdown', (event) => {
+                event.preventDefault();
+                this.ensureAudioContext();
+                if (key === 'rotate') {
+                  this.rotateWeapon();
+                  return;
+                }
+                if (key === 'restart') {
+                  this.attemptRestart();
+                  return;
+                }
+                set(true);
+              });
+              button.addEventListener('pointerup', (event) => {
+                event.preventDefault();
+                set(false);
+              });
+              button.addEventListener('pointercancel', (event) => {
+                event.preventDefault();
+                set(false);
+              });
+              button.addEventListener('pointerleave', (event) => {
+                event.preventDefault();
+                set(false);
+              });
+            });
+
+            const restartBottom = document.getElementById('touch-restart-bottom');
+            restartBottom.addEventListener('click', () => this.attemptRestart());
+            document.getElementById('mobile-controls').classList.add('show');
+            this.input.on('pointerdown', this.ensureAudioContext, this);
+            document.addEventListener('keydown', () => this.ensureAudioContext(), { passive: true });
+          }
+
+          ensureAudioContext() {
+            if (this.audioContext) {
+              if (this.audioContext.state === 'suspended') {
+                this.audioContext.resume();
+              }
+              return;
+            }
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return;
+            this.audioContext = new Ctx();
+          }
+
+          playTone(freq, duration, type = 'square', volume = 0.06) {
+            if (!this.audioContext) return;
+            const now = this.audioContext.currentTime;
+            const osc = this.audioContext.createOscillator();
+            const gain = this.audioContext.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.value = volume;
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+            osc.connect(gain);
+            gain.connect(this.audioContext.destination);
+            osc.start(now);
+            osc.stop(now + duration);
+          }
+
+          attemptRestart() {
+            if (this.state === 'gameOver' || this.state === 'won') {
+              this.scene.restart();
+            }
+          }
+
+          rotateWeapon() {
+            if (this.state !== 'running') return;
+            const order = ['left', 'front', 'right'];
+            const current = this.player.getData('orientation');
+            const next = order[(order.indexOf(current) + 1) % order.length];
+            this.player.setData('orientation', next);
+            this.playTone(720, 0.08, 'sine', 0.05);
+          }
+
+          createHud() {
+            this.hud = this.add.text(12, 8, '', {
+              fontSize: '16px',
+              fontFamily: 'monospace',
+              color: '#edf5ff',
+              stroke: '#000',
+              strokeThickness: 2,
+            }).setScrollFactor(0);
+
+            this.note = this.add.text(VIEW_WIDTH - 240, 8, '', {
+              fontSize: '14px',
+              fontFamily: 'monospace',
+              color: '#7fffd4',
+            }).setScrollFactor(0);
+
+            this.overlay = this.add.text(VIEW_WIDTH / 2, VIEW_HEIGHT / 2 - 40, '', {
+              fontSize: '44px',
+              fontFamily: 'Arial Black, Impact, sans-serif',
+              color: '#f6ff86',
+              stroke: '#000',
+              strokeThickness: 4,
+              align: 'center',
+            }).setOrigin(0.5).setScrollFactor(0).setVisible(false);
+          }
+
+          createCollisions() {
+            this.physics.add.collider(this.player, this.terrain, this.handleSurfaceHit, null, this);
+
+            this.barracks.forEach((barrack, index) => {
+              this.physics.add.overlap(this.playerShots, [barrack.body, barrack.pad], () => {
+                this.openBarrack(index);
+              }, null, this);
+
+              this.physics.add.overlap(this.player, barrack.pad, () => {
+                this.handleBoardAttempt(barrack);
+              });
+            });
+
+            this.physics.add.overlap(this.player, this.baseZone, () => {
+              this.handleDropOff();
+            }, null, this);
+
+            this.physics.add.collider(this.player, this.tanks, this.killPlayer, null, this);
+            this.physics.add.collider(this.player, this.jets, this.killPlayer, null, this);
+            this.physics.add.collider(this.player, this.mines, this.killPlayer, null, this);
+
+            this.physics.add.overlap(this.playerShots, this.tanks, this.hitEnemyTank, null, this);
+            this.physics.add.overlap(this.playerShots, this.jets, this.hitEnemyJet, null, this);
+            this.physics.add.overlap(this.playerShots, this.mines, this.hitEnemyMine, null, this);
+
+            this.physics.add.overlap(this.player, this.enemyShots, this.killPlayer, null, this);
+            this.physics.add.overlap(this.tanks, this.enemyShots, (tank, shot) => this.destroySelfOnHit(tank, shot));
+          }
+
+          setTimers() {
+            this.nextTank = 0;
+            this.nextJet = 6000;
+            this.nextMine = 14000;
+          }
+
+          update(time, delta) {
+            if (this.state !== 'running') {
+              if (this.state === 'gameOver' || this.state === 'won') {
+                if (Phaser.Input.Keyboard.JustDown(this.keys.restart) || this.touch.restart) {
+                  this.touch.restart = false;
+                  this.attemptRestart();
+                }
+              }
+              return;
+            }
+
+            const left = this.keys.left.isDown || this.touch.left;
+            const right = this.keys.right.isDown || this.touch.right;
+            const up = this.keys.up.isDown || this.touch.up;
+            const down = this.keys.down.isDown || this.touch.down;
+            const wantsShoot = this.keys.shoot.isDown || this.touch.shoot;
+
+            if (left) {
+              this.player.setVelocityX(-240);
+              this.player.setAngle(-5);
+            } else if (right) {
+              this.player.setVelocityX(240);
+              this.player.setAngle(5);
+            } else {
+              this.player.setVelocityX(this.player.body.velocity.x * 0.9);
+            }
+
+            if (up) {
+              this.player.setVelocityY(-220);
+            }
+
+            if (down) {
+              this.player.setVelocityY(260);
+            }
+
+            this.player.setAngle(this.player.body.velocity.x > 90 ? 3 : this.player.body.velocity.x < -90 ? -3 : 0);
+
+            if (wantsShoot && time > this.nextPlayerShot) {
+              this.firePlayerShot();
+              this.nextPlayerShot = time + 110;
+            }
+
+            this.spawnEnemies(time);
+            this.updateEnemies(time);
+            this.cleanupObjects();
+            this.updateHud();
+
+            if (this.player.y > WORLD_HEIGHT - 8 || this.player.y < -60) {
+              this.killPlayer();
+            }
+          }
+
+          updateHud() {
+            const orientation = this.player.getData('orientation');
+            const oMap = { left: '←', front: '↑', right: '→' };
+            this.hud.setText(
+              [
+                `Lives: ${this.lives}`,
+                `Cargo: ${this.passengerLoad}/${MAX_CARGO}`,
+                `Rescued: ${this.rescued}/${TOTAL_HOSTAGES}`,
+                `Trips completed: ${this.deliveredTrips}`,
+                `Weapon: ${oMap[orientation]}`,
+                `Barracks open: ${this.barracks.filter((b) => b.open).length}/4`,
+              ].join('   |   '),
+            );
+
+            const stage = this.deliveredTrips === 0 ? 'Defenders only' : this.deliveredTrips === 1 ? 'Jets active' : 'Jets + Mines active';
+            this.note.setText(`Threat level: ${stage}`);
+
+            if (this.rescued >= TOTAL_HOSTAGES) {
+              this.endGame(true);
+            }
+            if (this.lives <= 0) {
+              this.endGame(false);
+            }
+          }
+
+          spawnEnemies(time) {
+            if (time >= this.nextTank && this.tanks.getChildren().length < 7) {
+              const tank = this.tanks.get(this.player.x + Phaser.Math.Between(-360, 360), GROUND_TOP - 12, 'tank');
+              if (tank) {
+                tank.setActive(true).setVisible(true);
+                tank.body.setCollideWorldBounds(true);
+                tank.body.setGravityY(0);
+                tank.setVelocityX(Phaser.Math.Between(-40, 40) * (Math.random() > 0.5 ? 1 : -1));
+                tank.body.setImmovable(true);
+                tank.setData('nextFire', time + Phaser.Math.Between(900, 1600));
+                tank.setTint(0xff9f60);
+                this.physics.add.collider(tank, this.terrain);
+                this.physics.add.collider(tank, this.baseZone);
+                this.nextTank = time + Phaser.Math.Between(1300, 2600);
+              }
+            }
+
+            if (this.deliveredTrips >= 1 && time >= this.nextJet && this.jets.getChildren().length < 4) {
+              const side = Math.random() > 0.5 ? 1 : -1;
+              const x = side > 0 ? -50 : WORLD_WIDTH + 50;
+              const jet = this.jets.get(x, Phaser.Math.Between(70, 240), 'jet');
+              if (jet) {
+                jet.setActive(true).setVisible(true);
+                jet.body.setAllowGravity(false);
+                jet.setTint(0xffdc7a);
+                jet.setData('speed', 120 + Phaser.Math.Between(0, 60));
+                jet.setData('nextFire', time + Phaser.Math.Between(800, 1600));
+                jet.body.setVelocityX(side * -1 * (100 + Phaser.Math.Between(35, 80)));
+                jet.body.setCollideWorldBounds(false);
+                jet.setData('side', side);
+              }
+              this.nextJet = time + Phaser.Math.Between(2300, 3200);
+            }
+
+            if (this.deliveredTrips >= 2 && time >= this.nextMine && this.mines.getChildren().length < 3) {
+              const mine = this.mines.get(Phaser.Math.Between(600, WORLD_WIDTH - 420), Phaser.Math.Between(80, 260), 'mine');
+              if (mine) {
+                mine.setActive(true).setVisible(true);
+                mine.body.setAllowGravity(false);
+                mine.body.setDrag(120);
+                mine.setTint(0x5cf9ff);
+                mine.setData('speed', 70 + Phaser.Math.Between(0, 40));
+                mine.setData('nextFire', time + Phaser.Math.Between(700, 1500));
+              }
+              this.nextMine = time + Phaser.Math.Between(3000, 4200);
+            }
+          }
+
+          updateEnemies(time) {
+            const playerX = this.player.x;
+            const playerY = this.player.y;
+
+            this.tanks.getChildren().forEach((tank) => {
+              if (!tank.active) return;
+              if (tank.x < -30 || tank.x > WORLD_WIDTH + 30) {
+                tank.setActive(false);
+                tank.setVisible(false);
+                tank.body && tank.body.destroy();
+                return;
+              }
+
+              const distance = Math.abs(this.player.x - tank.x);
+              if (this.player.body.onFloor() && distance < 360 && time > tank.getData('nextFire')) {
+                this.fireAtPlayer(tank.x, tank.y - 14, 260);
+                tank.setData('nextFire', time + Phaser.Math.Between(900, 1800));
+              }
+            });
+
+            this.jets.getChildren().forEach((jet) => {
+              if (!jet.active) return;
+
+              if (jet.x < -80 || jet.x > WORLD_WIDTH + 80) {
+                jet.destroy();
+                return;
+              }
+
+              const dir = Math.sign(playerX - jet.x);
+              jet.setVelocityX(dir * jet.getData('speed'));
+
+              const distToPlayer = Phaser.Math.Distance.Between(jet.x, jet.y, playerX, playerY);
+              if (distToPlayer < 520 && time > jet.getData('nextFire')) {
+                const angle = Phaser.Math.Angle.Between(jet.x, jet.y, playerX, playerY);
+                this.fireEnemyBullet(jet.x, jet.y, Math.cos(angle) * 220, Math.sin(angle) * 220, 3);
+                jet.setData('nextFire', time + Phaser.Math.Between(700, 1200));
+              }
+            });
+
+            this.mines.getChildren().forEach((mine) => {
+              if (!mine.active) return;
+
+              const angle = Phaser.Math.Angle.Between(mine.x, mine.y, playerX, playerY);
+              const speed = mine.getData('speed');
+              mine.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+
+              if (Phaser.Math.Distance.Between(mine.x, mine.y, playerX, playerY) < 290 && time > mine.getData('nextFire')) {
+                const angleToPlayer = Phaser.Math.Angle.Between(mine.x, mine.y, playerX, playerY);
+                this.fireEnemyBullet(mine.x, mine.y, Math.cos(angleToPlayer) * 210, Math.sin(angleToPlayer) * 210, 1);
+              }
+            });
+          }
+
+          cleanupObjects() {
+            this.playerShots.getChildren().forEach((bullet) => {
+              if (!bullet.active) return;
+              const outOfBounds = bullet.x < 0 || bullet.x > WORLD_WIDTH || bullet.y < 0 || bullet.y > WORLD_HEIGHT;
+              if (outOfBounds) {
+                bullet.setActive(false);
+                bullet.setVisible(false);
+              }
+            });
+
+            this.enemyShots.getChildren().forEach((bullet) => {
+              if (!bullet.active) return;
+              const outOfBounds = bullet.x < 0 || bullet.x > WORLD_WIDTH || bullet.y < 0 || bullet.y > WORLD_HEIGHT;
+              if (outOfBounds) {
+                bullet.setActive(false);
+                bullet.setVisible(false);
+              }
+            });
+          }
+
+          firePlayerShot() {
+            if (!this.player.active) return;
+            this.ensureAudioContext();
+            const orientation = this.player.getData('orientation');
+            this.playTone(950, 0.05, 'square', 0.05);
+            const shot = this.playerShots.get(this.player.x, this.player.y);
+            if (!shot) return;
+
+            shot.setActive(true).setVisible(true);
+            shot.body.setAllowGravity(false);
+            shot.body.setVelocity(0, 0);
+
+            if (orientation === 'front') {
+              shot.setScale(0.8);
+              shot.setTint(0x7fffd4);
+              shot.body.setSize(4, 6);
+              shot.setTexture('enemy-shot');
+              shot.body.setVelocityY(360);
+            } else {
+              shot.setScale(1);
+              shot.setTint(0x9eff7c);
+              shot.setTexture('player-shot');
+              shot.body.setVelocityX(orientation === 'left' ? -520 : 520);
+            }
+
+            shot.body.updateFromGameObject();
+          }
+
+          fireAtPlayer(x, y, speed) {
+            const sx = x + (x < this.player.x ? -4 : 4);
+            const sxDir = Math.sign(this.player.x - x) || 1;
+            const vx = sxDir * speed;
+            const shot = this.enemyShots.get(sx, y);
+            if (!shot) return;
+
+            shot.setActive(true).setVisible(true);
+            shot.setTexture('enemy-shot');
+            shot.body.setAllowGravity(false);
+            shot.setScale(1.1);
+            shot.setTint(0xffdb6d);
+            shot.body.setVelocityX(vx);
+            shot.body.setVelocityY(Phaser.Math.Between(-70, -20));
+          }
+
+          fireEnemyBullet(x, y, vx, vy, spread = 1) {
+            const shot = this.enemyShots.get(x, y);
+            if (!shot) return;
+            shot.setActive(true).setVisible(true);
+            shot.setTexture('enemy-shot');
+            shot.setTint(0xff5b53);
+            shot.body.setAllowGravity(false);
+            shot.body.setVelocity(vx + Phaser.Math.Between(-spread * 18, spread * 18), vy + Phaser.Math.Between(-spread * 12, spread * 12));
+          }
+
+          handleSurfaceHit(player, surface) {
+            if (!surface.getData('killsOnLand')) return;
+
+            const speed = Math.abs(player.body.velocity.y);
+            const onSafeTerrain = this.isOnSafePad(player.x, player.y);
+            if (!onSafeTerrain && speed > 180) {
+              this.killPlayer();
+            }
+          }
+
+          isOnSafePad(px, py) {
+            const onBase = Math.abs(px - this.basePad.x) < 70 && Math.abs(py - this.baseZone.y) < 48;
+            if (onBase) return true;
+            return this.barracks.some((b) => Math.abs(px - b.pad.x) < 62 && Math.abs(py - b.pad.y) < 30);
+          }
+
+          openBarrack(index) {
+            const barrack = this.barracks[index];
+            if (!barrack || barrack.open) return;
+            barrack.open = true;
+            barrack.body.setTint(0xffd38a);
+            this.add.text(barrack.x, barrack.topY - 60, 'OPEN', {
+              fontSize: '14px',
+              color: '#f7ff7a',
+              fontFamily: 'monospace',
+            }).setOrigin(0.5).setDepth(20).setScrollFactor(0).setShadow(0, 0, '#000', 4);
+          }
+
+          handleBoardAttempt(barrack) {
+            const now = this.time.now;
+            if (this.playerDead) return;
+            if (!barrack.open || barrack.remaining <= 0) return;
+            if (this.passengerLoad >= MAX_CARGO) return;
+            if (!this.player.body.blocked.down) return;
+            if (now - this.lastBoardTime < 250) return;
+
+            const space = MAX_CARGO - this.passengerLoad;
+            const boarding = Math.min(space, barrack.remaining);
+
+            if (boarding > 0) {
+              this.passengerLoad += boarding;
+              barrack.remaining -= boarding;
+              barrack.text.setText(`x${barrack.remaining}`);
+              this.lastBoardTime = now;
+            }
+          }
+
+          handleDropOff() {
+            const now = this.time.now;
+            if (!this.passengerLoad || !this.player.body.blocked.down) return;
+            if (now - this.lastBoardTime < 250) return;
+
+            this.rescued += this.passengerLoad;
+            this.deliveredTrips += 1;
+            this.passengerLoad = 0;
+            this.lastBoardTime = now;
+          }
+
+          destroySelfOnHit(enemy, shot) {
+            this.disableProjectile(shot);
+            enemy.setTint(0x444444);
+          }
+
+          disableProjectile(shot) {
+            shot.setActive(false);
+            shot.setVisible(false);
+            shot.body.reset(0, 0);
+          }
+
+          killPlayer() {
+            if (this.playerDead || this.state !== 'running') return;
+            this.ensureAudioContext();
+            this.playerDead = true;
+            this.lives -= 1;
+            this.passengerLoad = 0;
+            this.playTone(150, 0.22, 'sawtooth', 0.09);
+
+            this.cameras.main.shake(220, 0.005);
+            this.time.delayedCall(180, () => {
+              this.player.setPosition(this.baseX, 480);
+              this.player.setVelocity(0, 0);
+              this.playerDead = false;
+
+              if (this.lives <= 0) {
+                this.endGame(false);
+              }
+            });
+          }
+
+          endGame(win) {
+            if (this.state === 'won' || this.state === 'gameOver') return;
+            this.state = win ? 'won' : 'gameOver';
+            this.ensureAudioContext();
+            this.playTone(win ? 820 : 190, win ? 0.14 : 0.5, win ? 'triangle' : 'square', win ? 0.05 : 0.11);
+            this.overlay.setText(win ? 'MISSION COMPLETE\nPress R to play again' : 'GAME OVER\nPress R to retry');
+            this.overlay.setVisible(true);
+          }
+
+          hitEnemyTank(shot, tank) {
+            this.ensureAudioContext();
+            this.playTone(420, 0.06, 'triangle', 0.05);
+            this.disableProjectile(shot);
+            tank.setVisible(false);
+            tank.setActive(false);
+            tank.body.reset(0, 0);
+            tank.destroy();
+          }
+
+          hitEnemyJet(shot, jet) {
+            this.ensureAudioContext();
+            this.playTone(480, 0.05, 'triangle', 0.05);
+            this.disableProjectile(shot);
+            jet.setVisible(false);
+            jet.setActive(false);
+            jet.body.reset(0, 0);
+            jet.destroy();
+          }
+
+          hitEnemyMine(shot, mine) {
+            this.ensureAudioContext();
+            this.playTone(540, 0.05, 'triangle', 0.04);
+            this.disableProjectile(shot);
+            mine.setVisible(false);
+            mine.setActive(false);
+            mine.body.reset(0, 0);
+            mine.destroy();
+          }
+        }
+
+        const config = {
+          type: Phaser.AUTO,
+          parent: 'game-wrap',
+          width: VIEW_WIDTH,
+          height: VIEW_HEIGHT,
+          physics: {
+            default: 'arcade',
+            arcade: { gravity: { y: 0 }, debug: false },
+          },
+          scene: ChoplifterScene,
+          scale: {
+            mode: Phaser.Scale.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH,
+          },
+        };
+
+        new Phaser.Game(config);
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+.DS_Store
+node_modules/
+dist/
+build/
+.next/
+.vinext/
+.wrangler/
+.openai/
+tmp/
+*.tsbuildinfo
+.env*
+*.log
