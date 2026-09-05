@@ -35,6 +35,6 @@ for img in images:
 prompt = (ROOT / "PROMPT.md").read_text().split("> ", 1)[1].split("\n", 1)[0]
 assert prompt in "".join(page.text)
 dates = {a["datetime"] for tag, a in page.tags if tag == "time"}
-assert dates == {"2026-02-05", "2026-03-05", "2026-07-09", "2026-09-03", "2026-09-05"}
+assert dates == {"2026-02-05", "2026-09-05", "2026-02", "2026-03", "2026-07", "2026-09"}
 assert "Brøderbund" in "".join(page.text) and "hirudov" in "".join(page.text)
 print("PASS: four game images, four destinations, new-tab links, exact prompt, dates, and credits")

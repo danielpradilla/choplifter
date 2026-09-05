@@ -30,17 +30,15 @@ nav a, .site-footer > a { text-decoration: none; }
 nav a:hover, .site-footer > a:hover { text-decoration: underline; }
 .intro { padding-top: 50px; }
 .eyebrow { font-size: .73rem; text-transform: uppercase; letter-spacing: .09em; color: var(--secondary); font-weight: 400; margin: 0 0 16px; }
-.lead { margin: 16px 0 28px; color: var(--muted); font-size: clamp(1.25rem, 2.4vw, 1.7rem); }
-.intro-copy { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 1140px; color: var(--muted); }
+.intro-copy { margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 1140px; color: var(--muted); }
 .intro-copy p { margin: 0; }
 .period { margin-top: 30px; border-block: 1px solid var(--rule); padding: 17px 0; display: flex; justify-content: space-between; gap: 20px; font-size: .85rem; }
 .period > span { color: var(--muted); }
 .period span[aria-hidden] { padding: 0 10px; }
 .experiments { padding: 36px 0 44px; }
-.section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; }
+.section-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; margin-bottom: 24px; }
 .section-heading p { color: var(--secondary); font-size: .83rem; white-space: nowrap; }
-.date-note, .collection-note, .small { color: var(--secondary); font-size: .87rem; }
-.date-note { margin: 12px 0 24px; }
+.collection-note, .small { color: var(--secondary); font-size: .87rem; }
 .game-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 .game-card { border: 1px solid var(--rule); background: var(--paper); min-width: 0; }
 .game-image { display: block; aspect-ratio: 16/9; border-bottom: 1px solid var(--rule); background: var(--paper-soft); overflow: hidden; }

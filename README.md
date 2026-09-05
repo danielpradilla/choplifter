@@ -1,4 +1,4 @@
-# Choplifter, again
+# Choplifter, one-shotted
 
 One Choplifter prompt, four OpenAI models: a personal collection of browser-game experiments from February 5 to September 5, 2026.
 
@@ -6,14 +6,14 @@ One Choplifter prompt, four OpenAI models: a personal collection of browser-game
 
 The homepage follows Daniel Pradilla’s house style. Each game has a screenshot and opens in a new tab. The original game directories are preserved; the homepage adds no code to them.
 
-| Attempt | First family release | Play |
+| Attempt | Month | Play |
 | --- | --- | --- |
-| GPT-5.3 Codex | February 5, 2026 | [Choplifter 5.3](https://www.danielpradilla.info/projects/choplifter/choplifter-5.3/) |
-| GPT-5.4 | March 5, 2026 | [Choplifter 5.4](https://www.danielpradilla.info/projects/choplifter/choplifter-5.4/) |
-| GPT-5.6 Sol | July 9, 2026 | [Lifeline ’82](https://www.danielpradilla.info/projects/choplifter/choplifter-5.6-sol/) |
-| GPT-6 Astra | September 3, 2026 | [Rescue Operations](https://www.danielpradilla.info/projects/choplifter/choplifter-6-astra/) |
+| GPT-5.3 Codex | February 2026 | [Choplifter 5.3](https://www.danielpradilla.info/projects/choplifter/choplifter-5.3/) |
+| GPT-5.4 | March 2026 | [Choplifter 5.4](https://www.danielpradilla.info/projects/choplifter/choplifter-5.4/) |
+| GPT-5.6 Sol | July 2026 | [Lifeline ’82](https://www.danielpradilla.info/projects/choplifter/choplifter-5.6-sol/) |
+| GPT-6 Astra | September 2026 | [Rescue Operations](https://www.danielpradilla.info/projects/choplifter/choplifter-6-astra/) |
 
-Dates identify the first release in each family, not a later Codex variant, API rollout, model snapshot, or execution timestamp. Sources: [OpenAI ChatGPT & Codex changelog](https://learn.chatgpt.com/docs/changelog) (5.3) and [OpenAI API changelog](https://developers.openai.com/api/docs/changelog) (5.4, 5.6, 6). The collection records launch-week experiments as described by Daniel; these files represent the versions collected on September 5. This is not a controlled benchmark or an exhaustive release history.
+Months place the launch-week experiments in time. Model release references: [OpenAI ChatGPT & Codex changelog](https://learn.chatgpt.com/docs/changelog) (5.3) and [OpenAI API changelog](https://developers.openai.com/api/docs/changelog) (5.4, 5.6, 6). The collection records launch-week experiments as described by Daniel; these files represent the versions collected on September 5. This is not a controlled benchmark or an exhaustive release history.
 
 ## Preview and publish
 
@@ -38,4 +38,4 @@ The shared video reference is **[Apple II Longplay - Choplifter](https://www.you
 
 This is an independent, noncommercial experiment and tribute, not an official release. It is not affiliated with or endorsed by Dan Gorlin, Brøderbund, Apple, OpenAI, the video creator, or the game’s current rights holders. Original game names, trademarks, code, artwork, music, and footage remain the property of their respective owners. No ownership of those materials is claimed; this repository grants no rights to them. No blanket open-source license is asserted for the collection.
 
-The games may contain bugs or differ from the original. They are provided as-is, without a warranty of accuracy, fitness, or non-infringement. Screenshots depict the recreations. Attribution and rights concerns can be directed to [Daniel Pradilla](https://www.danielpradilla.info/blog/about/).
+The games may contain bugs or differ from the original. They are provided as-is, without a warranty of accuracy, fitness, or non-infringement. Screenshots depict the recreations.
