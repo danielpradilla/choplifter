@@ -6,14 +6,16 @@ One Choplifter prompt, four OpenAI models: a personal collection of browser-game
 
 The homepage follows Daniel Pradilla’s house style. Each game has a screenshot and opens in a new tab. The original game directories are preserved; the homepage adds no code to them.
 
-| Attempt | Month | Play |
-| --- | --- | --- |
-| GPT-5.3 Codex | February 2026 | [Choplifter 5.3](https://www.danielpradilla.info/projects/choplifter/choplifter-5.3/) |
-| GPT-5.4 | March 2026 | [Choplifter 5.4](https://www.danielpradilla.info/projects/choplifter/choplifter-5.4/) |
-| GPT-5.6 Sol | July 2026 | [Lifeline ’82](https://www.danielpradilla.info/projects/choplifter/choplifter-5.6-sol/) |
-| GPT-6 Astra | September 2026 | [Rescue Operations](https://www.danielpradilla.info/projects/choplifter/choplifter-6-astra/) |
+| Attempt | Month | Thinking effort | Play |
+| --- | --- | --- | --- |
+| GPT-5.3 Codex | February 2026 | High | [Choplifter 5.3](https://www.danielpradilla.info/projects/choplifter/choplifter-5.3/) |
+| GPT-5.4 | March 2026 | High | [Choplifter 5.4](https://www.danielpradilla.info/projects/choplifter/choplifter-5.4/) |
+| GPT-5.6 Sol | July 2026 | Extra-high | [Lifeline ’82](https://www.danielpradilla.info/projects/choplifter/choplifter-5.6-sol/) |
+| GPT-6 Astra | September 2026 | Extra-high | [Rescue Operations](https://www.danielpradilla.info/projects/choplifter/choplifter-6-astra/) |
 
 Months place the launch-week experiments in time. Model release references: [OpenAI ChatGPT & Codex changelog](https://learn.chatgpt.com/docs/changelog) (5.3) and [OpenAI API changelog](https://developers.openai.com/api/docs/changelog) (5.4, 5.6, 6). The collection records launch-week experiments as described by Daniel; these files represent the versions collected on September 5. This is not a controlled benchmark or an exhaustive release history.
+
+Each attempt used the next-to-highest thinking effort. Daniel confirmed Extra-high for GPT-5.6 Sol and GPT-6 Astra. High for GPT-5.3 Codex and GPT-5.4 is inferred from that rule and their [documented](https://developers.openai.com/api/docs/models/gpt-5.3-codex) [effort options](https://developers.openai.com/api/docs/models/gpt-5.4), rather than recovered execution logs.
 
 ## Preview and publish
 
