@@ -13,7 +13,7 @@
     <meta property="og:image" content="https://www.danielpradilla.info/projects/choplifter/images/choplifter-6-astra.jpg">
     <meta name="theme-color" content="#fffdf9">
     <link rel="icon" href="/favicon.ico">
-    <link rel="stylesheet" href="styles.css?v=20260905-2">
+    <link rel="stylesheet" href="styles.css?v=20260920-1">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XYG5QF5DZL"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -24,20 +24,34 @@
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <header class="site-header shell">
-      <a class="site-brand" href="/blog/"><strong>Daniel Pradilla</strong><span>getting the most out of technology</span></a>
-      <nav aria-label="Primary navigation"><a href="/projects/">Projects</a><a href="/blog/">Blog</a><a href="https://github.com/danielpradilla/choplifter">GitHub</a></nav>
+    <header class="dp-navbar shell">
+      <a class="dp-navbar-brand" href="/projects/">Daniel Pradilla</a>
+      <nav class="dp-navbar-links" aria-label="Primary navigation">
+        <a href="/projects/">Projects</a>
+        <a href="/blog/">Blog</a>
+        <a href="https://github.com/danielpradilla/choplifter">GitHub</a>
+      </nav>
+      <details class="dp-navbar-menu">
+        <summary aria-label="Open navigation menu">&#9776;</summary>
+        <nav aria-label="Primary navigation">
+          <a href="/projects/">Projects</a>
+          <a href="/blog/">Blog</a>
+          <a href="https://github.com/danielpradilla/choplifter">GitHub</a>
+        </nav>
+      </details>
     </header>
 
     <main id="main" class="shell">
-      <header class="intro">
+      <header class="dp-project-header">
         <h1>Choplifter, one-shotted</h1>
+      </header>
+      <section class="project-context" aria-label="Project introduction">
         <div class="intro-copy">
           <p>A helicopter, people waiting on the ground, and the trip back to safety. <em>Choplifter!</em> was created by <a href="https://en.wikipedia.org/wiki/Dan_Gorlin">Dan Gorlin</a> and published by <strong>Brøderbund</strong> for the <strong>Apple ][ in 1982</strong>. Easy to learn, hard to master. It’s a game I have an emotional connection to. One of my childhood games.</p>
           <p>Since GPT-5.3 launched with impressive one-shot demos, I’ve been giving new models the same task during launch week: one-shot a playable web clone. The same prompt, the same reference video, a different model. Each attempt used the next-to-highest thinking effort available for that model. This is where that experiment stands on September 5, 2026.</p>
         </div>
         <div class="period"><span><time datetime="2026-02-05">February 5, 2026</time> <span aria-hidden="true">→</span> <time datetime="2026-09-05">September 5, 2026</time></span><a href="#prompt">Read the original prompt <span aria-hidden="true">↓</span></a></div>
-      </header>
+      </section>
 
       <section class="experiments" aria-labelledby="experiments-title">
         <div class="section-heading"><h2 id="experiments-title">Four attempts at the same rescue.</h2></div>
@@ -81,6 +95,6 @@
         </div>
       </section>
     </main>
-    <footer class="site-footer shell"><a href="/blog/">Daniel Pradilla</a><span>Experiment archive · September 5, 2026</span><nav aria-label="Footer navigation"><a href="/projects/">Projects</a><a href="/blog/">Blog</a><a href="https://github.com/danielpradilla/choplifter">GitHub</a></nav></footer>
+    <footer class="dp-footer shell"><span>© 2026 Daniel Pradilla</span><nav aria-label="Footer navigation"><a href="/projects/">Projects</a><a href="/blog/">Blog</a><a href="https://github.com/danielpradilla/choplifter">GitHub</a></nav></footer>
   </body>
 </html>
