@@ -1,0 +1,20 @@
+{
+  "name": "choplifter-web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A web-based playable clone of Broderbund's Choplifter! (1982), built with Phaser 3 + Vite + TypeScript.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21"
+  }
+}
