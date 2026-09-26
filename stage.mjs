@@ -15,9 +15,16 @@ for (const file of ['index.html', 'styles.css', 'PROMPT.md', 'images']) {
 for (const [game, files] of Object.entries({
   'choplifter-5.3': ['index.html'],
   'choplifter-5.4': ['index.html', 'main.js', 'logic.js', 'styles.css'],
+  'choplifter-opus-5-5': ['index.html', 'game.js'],
 })) {
   await mkdir(resolve(output, game), { recursive: true });
   for (const file of files) await cp(resolve(root, game, file), resolve(output, game, file));
+}
+for (const game of ['choplifter-deepseek-4.1', 'choplifter-gpt-6-sol']) {
+  execFileSync(process.execPath, [
+    'node_modules/vite/bin/vite.js', 'build', '--base=./',
+    `--outDir=${resolve(output, game)}`,
+  ], { cwd: resolve(root, game), stdio: 'inherit' });
 }
 execFileSync(process.execPath, ['node_modules/vite/bin/vite.js', 'build', '--base=./', `--outDir=${resolve(output, 'choplifter-6-astra')}`], {
   cwd: resolve(root, 'choplifter-6-astra'), stdio: 'inherit',
@@ -39,4 +46,4 @@ await cp(resolve(root, 'choplifter-5.6-sol/dist/client'), sol, { recursive: true
 html = html.replaceAll('/assets/', './assets/').replaceAll('https://www.danielpradilla.info/og.png', 'https://www.danielpradilla.info/projects/choplifter/choplifter-5.6-sol/og.png');
 await writeFile(resolve(sol, 'index.html'), html);
 assert.equal(await readFile(resolve(output, 'choplifter-5.3/index.html'), 'utf8'), await readFile(resolve(root, 'choplifter-5.3/index.html'), 'utf8'));
-console.log(`Staged homepage and four games: ${output}`);
+console.log(`Staged homepage and seven games: ${output}`);

@@ -25,8 +25,8 @@ games = [a for tag, a in page.tags if tag == "a" and (
     a.get("href", "").startswith("choplifter-") or
     a.get("href", "").startswith("https://lifeline-82.")
 )]
-assert len(images) == 4 and len(games) == 8
-assert len({a["href"] for a in games}) == 4
+assert len(images) == 7 and len(games) == 14
+assert len({a["href"] for a in games}) == 7
 for a in games:
     assert a.get("target") == "_blank" and "noopener" in a.get("rel", "")
 for img in images:
@@ -35,6 +35,6 @@ for img in images:
 prompt = (ROOT / "PROMPT.md").read_text().split("> ", 1)[1].split("\n", 1)[0]
 assert prompt in "".join(page.text)
 dates = {a["datetime"] for tag, a in page.tags if tag == "time"}
-assert dates == {"2026-02-05", "2026-09-05", "2026-02", "2026-03", "2026-07", "2026-09"}
+assert dates == {"2026-02-05", "2026-09-26", "2026-02", "2026-03", "2026-07", "2026-09", "2026-09-25", "2026-09-26"}
 assert "Brøderbund" in "".join(page.text) and "hirudov" in "".join(page.text)
-print("PASS: four game images, four destinations, new-tab links, exact prompt, dates, and credits")
+print("PASS: seven game images, seven destinations, new-tab links, exact prompt, dates, and credits")
