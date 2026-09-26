@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fffdf9" />
+    <title>Choplifter — 1982 rescue arcade</title>
+    <meta name="description" content="A playable browser tribute to the 1982 Apple II rescue game Choplifter." />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">1982 / rescue arcade</p>
+          <h1>CHOPLIFTER<span>!</span></h1>
+        </div>
+        <div class="header-actions">
+          <span class="edition">A playable Apple II tribute</span>
+          <button id="sound" type="button" aria-label="Toggle sound">Sound on</button>
+          <button id="pause" type="button">Pause</button>
+          <button id="fullscreen" type="button">Fullscreen</button>
+        </div>
+      </header>
+
+      <section class="game-section" aria-label="Choplifter game">
+        <button class="exit-fullscreen" id="exit-fullscreen" type="button">Exit fullscreen</button>
+        <div class="game-frame" id="game-frame">
+          <div id="game" aria-label="Side scrolling rescue game"></div>
+          <div class="overlay" id="overlay">
+            <p class="overlay-kicker" id="overlay-kicker">YOUR MISSION</p>
+            <h2 id="overlay-title">RESCUE THE HOSTAGES</h2>
+            <p id="overlay-copy">Free 64 prisoners from four barracks. Land to pick them up, then return to the post office pad. You have three helicopters.</p>
+            <button class="start-button" id="start" type="button">Start mission <span>↗</span></button>
+          </div>
+        </div>
+        <div class="mobile-score" aria-label="Mission score">
+          <span>LOST <strong id="mobile-lost">00</strong></span>
+          <span>ABOARD <strong id="mobile-aboard">00/16</strong></span>
+          <span>RESCUED <strong id="mobile-rescued">00/64</strong></span>
+        </div>
+        <div class="touch-controls" aria-label="Touch game controls">
+          <div class="dpad">
+            <button data-control="up" aria-label="Fly up">↑</button>
+            <button data-control="left" aria-label="Fly left">←</button>
+            <button data-control="down" aria-label="Fly down">↓</button>
+            <button data-control="right" aria-label="Fly right">→</button>
+          </div>
+          <div class="touch-actions">
+            <button data-control="turn">TURN</button>
+            <button data-control="fire">FIRE</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="info" aria-label="How to play">
+        <div class="mission-note"><span class="note-mark">01</span><div><strong>Free them</strong><p>Shoot the closed barracks. One is already open.</p></div></div>
+        <div class="mission-note"><span class="note-mark">02</span><div><strong>Pick them up</strong><p>Land nearby and wait. Maximum 16 aboard.</p></div></div>
+        <div class="mission-note"><span class="note-mark">03</span><div><strong>Bring them home</strong><p>Land on the green pad beside the post office.</p></div></div>
+      </section>
+      <footer class="footer">
+        <p><strong>Fly</strong> arrows or WASD <span>·</span> <strong>Turn</strong> X <span>·</span> <strong>Fire</strong> Space <span>·</span> <strong>Pause</strong> P</p>
+        <p>Original game by Dan Gorlin / Brøderbund, 1982. Independent tribute.</p>
+      </footer>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
