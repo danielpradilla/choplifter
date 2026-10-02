@@ -1,0 +1,18 @@
+{
+  "name": "choplifter-sol-6-1",
+  "version": "1.0.0",
+  "description": "A playable Phaser reimagining of the 1982 Choplifter rescue game",
+  "private": true,
+  "scripts": {
+    "postinstall": "mkdir -p vendor && cp node_modules/phaser/dist/phaser.min.js vendor/",
+    "start": "devserve",
+    "build": "mkdir -p dist/vendor && cp index.html styles.css game.js mission.js dist/ && cp node_modules/phaser/dist/phaser.min.js dist/vendor/",
+    "test": "node test.mjs",
+    "test:browser": "node test.mjs --browser"
+  },
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "phaser": "3.90.0"
+  }
+}

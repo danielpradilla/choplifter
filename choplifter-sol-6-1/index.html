@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101d2b">
+  <meta name="description" content="Fly behind enemy lines, rescue 64 hostages, and bring them home. A playable browser reimagining of the 1982 Choplifter game.">
+  <title>Choplifter — Bring them home</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101d2b'/%3E%3Cpath d='M5 9h24M17 9v6M7 16h15v7H7zm-4 2h4M10 23v3m10-3v3M7 26h17' stroke='%236dd6d2' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./vendor/phaser.min.js"></script>
+  <script type="module" src="./game.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Choplifter home">
+      <svg viewBox="0 0 46 34" aria-hidden="true"><path d="M7 4h35M25 4v9M15 13h17l6 5v7H15zM3 15h12M7 15v-5M19 25v5m14-5v5M14 30h26"/></svg>
+      <span>CHOPLIFTER<span class="brand-dot">.</span></span>
+    </a>
+    <span class="edition">1982, REIMAGINED</span>
+    <button class="text-button" id="help-button">Flight manual <span aria-hidden="true">↗</span></button>
+  </header>
+
+  <main class="shell">
+    <div class="mission-heading">
+      <div><p class="eyebrow">OPERATION 01 <span>/</span> BUNGELING FRONTIER</p><h1>Bring them home.</h1></div>
+      <div class="mission-status"><span class="status-dot" id="status-dot"></span><span id="status-label">Awaiting takeoff</span></div>
+    </div>
+
+    <section class="flight-deck" aria-label="Choplifter rescue game">
+      <div class="instrument-panel">
+        <div class="metric rescued"><span class="metric-label">RESCUED</span><strong><span id="rescued">00</span><small> / 64</small></strong></div>
+        <div class="metric"><span class="metric-label">ON BOARD</span><strong><span id="aboard">00</span><small> / 16</small></strong></div>
+        <div class="metric lost"><span class="metric-label">LOST</span><strong id="lost">00</strong></div>
+        <div class="metric sorties"><span class="metric-label">HELICOPTERS</span><strong id="lives" role="img" aria-label="3 helicopters remaining">▰ ▰ ▰</strong></div>
+        <div class="deck-actions">
+          <button class="icon-button" id="sound-button" aria-label="Mute sound" aria-pressed="false" title="Sound (M)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4zM17 8c3 2 3 6 0 8m3-11c5 4 5 10 0 14"/></svg></button>
+          <button class="icon-button" id="pause-button" aria-label="Pause game" title="Pause (P)" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button>
+          <button class="icon-button" id="fullscreen-button" aria-label="Enter fullscreen" title="Fullscreen (F)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5m6 0h5v5m0 6v5h-5M9 20H4v-5"/></svg></button>
+        </div>
+      </div>
+
+      <div class="game-viewport" id="game-viewport">
+        <div id="game" role="group" aria-label="Game canvas. Use arrows or WASD to fly, Space to fire, X for ground attack, and Z to turn." tabindex="0"></div>
+        <div class="scanlines" aria-hidden="true"></div>
+        <div class="overlay" id="overlay">
+          <div class="briefing">
+            <p class="eyebrow">RESCUE PILOT, YOU’RE UP.</p>
+            <h2 id="overlay-title">64 lives.<br>One way home.</h2>
+            <p id="overlay-description">Fly left into enemy territory. Land near the hostages, let them board, then return to the green pad at home base.</p>
+            <div class="briefing-facts" id="briefing-facts"><span><b>16</b> seats</span><span><b>3</b> helicopters</span><span><b>4</b> barracks</span></div>
+            <button class="launch-button" id="launch-button" disabled>Preparing helicopter…</button>
+            <p class="start-hint" id="start-hint">ARROWS TO FLY <span>·</span> SPACE TO FIRE <span>·</span> ENTER TO START</p>
+          </div>
+        </div>
+        <p class="game-error" id="game-error" role="alert" hidden>The game could not load. Run <code>npm install</code>, then reload this page.</p>
+      </div>
+
+      <div class="radio-strip"><span class="radio-label"><span class="status-dot"></span> FIELD RADIO</span><span id="radio-message" role="status">Your first pickup is waiting just west of the border.</span><span class="radio-frequency">121.50 MHz</span></div>
+    </section>
+
+    <div class="touch-controls" id="touch-controls" aria-label="Touch flight controls">
+      <div class="dpad"><button data-control="up" aria-label="Fly up">↑</button><button data-control="left" aria-label="Fly left">←</button><button data-control="down" aria-label="Fly down">↓</button><button data-control="right" aria-label="Fly right">→</button></div>
+      <div class="touch-actions"><button data-control="turn">TURN</button><button data-control="ground">GROUND</button><button data-control="fire" class="fire-button">FIRE</button></div>
+    </div>
+
+    <section class="field-guide" aria-label="Quick flight guide">
+      <div class="guide-section controls-guide"><p class="eyebrow">01 / FLIGHT CONTROLS</p><div class="key-row"><span><kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> or <kbd>WASD</kbd></span><span>Fly</span></div><div class="key-row"><span><kbd>SPACE</kbd> Fire <kbd>X</kbd> Ground attack</span><span><kbd>Z</kbd> Turn</span></div></div>
+      <div class="guide-section"><p class="eyebrow">02 / THE RESCUE</p><p>Land gently beside the waving hostages. Wait for boarding, then return to the green home pad to unload. Shoot locked barracks to free the others.</p></div>
+      <div class="guide-section"><p class="eyebrow">03 / STAY ALIVE</p><p>Face the screen with <kbd>X</kbd> to attack tanks below. Dodge jets and homing mines. Watch your fire, and never land on a hostage.</p></div>
+    </section>
+
+    <footer><span>A tribute to Dan Gorlin’s 1982 classic, published by Brøderbund.</span><span>Built with Phaser <span class="footer-dot">·</span> Best rescue: <b id="best">00</b> / 64</span></footer>
+  </main>
+
+  <dialog id="manual">
+    <div class="manual-heading"><div><p class="eyebrow">PILOT REFERENCE</p><h2>Flight manual</h2></div><button class="icon-button" id="close-manual" aria-label="Close flight manual">✕</button></div>
+    <p>Rescue as many of the 64 hostages as you can. Each of four barracks holds 16 people. Your helicopter has 16 seats and you have three helicopters.</p>
+    <dl><dt>Arrows / WASD</dt><dd>Fly in any direction. Release to hover; hold down to land. Slow down before touching the ground.</dd><dt>Space</dt><dd>Fire sideways, or fire down when facing the screen. Ammunition and fuel are unlimited.</dd><dt>X</dt><dd>Toggle ground attack. Face the screen and fire downward to destroy tanks or open barracks.</dd><dt>Z</dt><dd>Turn left or right independently of your direction of travel. You can fly backward.</dd><dt>P / Escape</dt><dd>Pause or resume.</dd><dt>M / F</dt><dd>Mute sound / toggle fullscreen.</dd></dl>
+    <p>Land in a clear spot beside a freed group. They run to your helicopter and board automatically. Return right to the green pad and wait for everybody to unload. Passengers only count as rescued once they get home.</p>
+    <p>Tanks attack low helicopters and exposed people. Jets appear after your first full delivery; homing mines after your second. Tanks and jets stay outside the friendly border, but mines can follow you home. An enemy hit or a collision costs a helicopter and everyone aboard.</p>
+    <p class="source-note">Mechanics researched from the <a href="https://mirrors.apple2.org.za/ftp.apple.asimov.net/documentation/games/misc/Choplifter%20Manual.pdf" target="_blank" rel="noreferrer">original manual</a> and this <a href="https://www.youtube.com/watch?v=2KDxRSeDKy8" target="_blank" rel="noreferrer">full Apple II playthrough</a>. Original artwork and synthesized sound; no ROM or original game assets.</p>
+  </dialog>
+</body>
+</html>

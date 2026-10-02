@@ -1,0 +1,16 @@
+{
+  "name": "rescue-lifter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "test": "node test/rules.test.js"
+  },
+  "dependencies": {
+    "phaser": "3.90.0",
+    "vite": "8.3.2"
+  },
+  "devDependencies": {}
+}
